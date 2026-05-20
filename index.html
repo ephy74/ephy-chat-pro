@@ -123,8 +123,10 @@
     let fullyLoadedProfiles = [];
 
     // ================= AUTH MANAGEMENT IMPLEMENTATIONS =================
-    authSwitchBtn.addEventListener('click', () => {
+    authSwitchBtn.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevents layout switching from refreshing the form instance
       isSignUpMode = !isSignUpMode;
+      
       authTitle.textContent = isSignUpMode ? "CREATE EPHY ACCOUNT" : "EPHY CHAT PRO";
       authSubmitBtn.textContent = isSignUpMode ? "Sign Up" : "Log In";
       authSwitchText.textContent = isSignUpMode ? "Already verified?" : "New to the platform?";
