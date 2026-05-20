@@ -84,234 +84,244 @@
   </div>
 
   <script>
-    // ================= CLIENT CORE INSTANCE ENVIRONMENT VARIABLES =================
-    const SUPABASE_URL = "https://dwtroohkdmpmzfbrvzzn.supabase.co"; //
-    const SUPABASE_ANON_KEY = "sb_publishable_O6L-x2Vd9RgDrxDYd7papA_D8WIRXNS";
+    document.addEventListener("DOMContentLoaded", () => {
+      // Setup Environment Credentials
+      const SUPABASE_URL = "https://dwtroohkdmpmzfbrvzzn.supabase.co"; //
+      const SUPABASE_ANON_KEY = "sb_publishable_O6L-x2Vd9RgDrxDYd7papA_D8WIRXNS";
 
-    // FIXED: Accessing via explicit global library namespace to avoid naming compilation collision crashes
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // Fixed initialization namespace
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let activeSessionUser = null;
-    let activePartnerId = null;
-    let isSignUpMode = false;
+      let activeSessionUser = null;
+      let activePartnerId = null;
+      let isSignUpMode = false;
 
-    // Element Target DOM Node References
-    const authView = document.getElementById('auth-view');
-    const appView = document.getElementById('app-view');
-    const authForm = document.getElementById('auth-form');
-    const authEmail = document.getElementById('auth-email');
-    const authPassword = document.getElementById('auth-password');
-    const authTitle = document.getElementById('auth-title');
-    const authSubmitBtn = document.getElementById('auth-submit-btn');
-    const authSwitchBtn = document.getElementById('auth-switch-btn');
-    const authSwitchText = document.getElementById('auth-switch-text');
-    
-    const sidebarContainer = document.getElementById('sidebar-container');
-    const chatContainer = document.getElementById('chat-container');
-    const mobileBackBtn = document.getElementById('mobile-back-btn');
-    const currentUserDisplay = document.getElementById('current-user-display');
-    const userAvatar = document.getElementById('user-avatar');
-    const usersList = document.getElementById('users-list');
-    const activeChatPartner = document.getElementById('active-chat-partner');
-    const chatBox = document.getElementById('chat-box');
-    const chatForm = document.getElementById('chat-form');
-    const messageInput = document.getElementById('message-input');
-    const sendBtn = document.getElementById('send-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const searchInput = document.getElementById('search-input');
-
-    let fullyLoadedProfiles = [];
-
-    // ================= AUTH MANAGEMENT IMPLEMENTATIONS =================
-    authSwitchBtn.addEventListener('click', (e) => {
-      e.preventDefault(); 
-      isSignUpMode = !isSignUpMode;
+      // Safe Element Target DOM Mappings
+      const authView = document.getElementById('auth-view');
+      const appView = document.getElementById('app-view');
+      const authForm = document.getElementById('auth-form');
+      const authEmail = document.getElementById('auth-email');
+      const authPassword = document.getElementById('auth-password');
+      const authTitle = document.getElementById('auth-title');
+      const authSubmitBtn = document.getElementById('auth-submit-btn');
+      const authSwitchBtn = document.getElementById('auth-switch-btn');
+      const authSwitchText = document.getElementById('auth-switch-text');
       
-      authTitle.textContent = isSignUpMode ? "CREATE EPHY ACCOUNT" : "EPHY CHAT PRO";
-      authSubmitBtn.textContent = isSignUpMode ? "Sign Up" : "Log In";
-      authSwitchText.textContent = isSignUpMode ? "Already verified?" : "New to the platform?";
-      authSwitchBtn.textContent = isSignUpMode ? "Log In" : "Create Account";
-    });
+      const sidebarContainer = document.getElementById('sidebar-container');
+      const chatContainer = document.getElementById('chat-container');
+      const mobileBackBtn = document.getElementById('mobile-back-btn');
+      const currentUserDisplay = document.getElementById('current-user-display');
+      const userAvatar = document.getElementById('user-avatar');
+      const usersList = document.getElementById('users-list');
+      const activeChatPartner = document.getElementById('active-chat-partner');
+      const chatBox = document.getElementById('chat-box');
+      const chatForm = document.getElementById('chat-form'); // Target collision eliminated
+      const messageInput = document.getElementById('message-input');
+      const sendBtn = document.getElementById('send-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      const searchInput = document.getElementById('search-input');
 
-    authForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = authEmail.value.trim();
-      const password = authPassword.value;
+      let fullyLoadedProfiles = [];
 
-      if (isSignUpMode) {
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) return alert("Registration Reject: " + error.message);
+      // ================= VIEW ENGINE TOGGLES =================
+      authSwitchBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        isSignUpMode = !isSignUpMode;
         
-        const generatedHandle = email.split('@')[0].toLowerCase();
-        if (data.user) {
-          await supabase.from('profiles').insert({ id: data.user.id, username: generatedHandle });
-        }
-        alert("Registration success profile provisioned! Accessing main stream...");
-        verifyLiveSession();
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return alert("Access Denied: " + error.message);
-        verifyLiveSession();
-      }
-    });
-
-    logoutBtn.addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      appView.classList.add('hidden');
-      authView.classList.remove('hidden');
-      activeSessionUser = null;
-      activePartnerId = null;
-    });
-
-    async function verifyLiveSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session && session.user) {
-        activeSessionUser = session.user;
-        authView.classList.add('hidden');
-        appView.classList.remove('hidden');
-        
-        const { data } = await supabase.from('profiles').select('username').eq('id', activeSessionUser.id).single();
-        const outputHandle = data ? data.username : activeSessionUser.email.split('@')[0];
-        
-        currentUserDisplay.textContent = outputHandle;
-        userAvatar.textContent = outputHandle[0].toUpperCase();
-
-        syncRegisteredProfiles();
-        bindRealtimeMessagePipeline();
-      }
-    }
-
-    // ================= SIDEBAR FEEDS RENDERING =================
-    async function syncRegisteredProfiles() {
-      const { data: records, error } = await supabase.from('profiles').select('*');
-      if (error) return;
-
-      fullyLoadedProfiles = records;
-      drawSidebarElements();
-    }
-
-    function drawSidebarElements() {
-      const queryFilter = searchInput.value.trim().toLowerCase();
-      usersList.innerHTML = '';
-
-      const structuralMatches = fullyLoadedProfiles.filter(p => {
-        if (p.id === activeSessionUser.id) return false;
-        return !queryFilter || p.username.toLowerCase().includes(queryFilter);
-      });
-
-      if (structuralMatches.length === 0) {
-        usersList.innerHTML = `<div class="text-xs text-slate-500 p-4 italic text-center">No profiles found</div>`;
-        return;
-      }
-
-      structuralMatches.forEach(p => {
-        const btn = document.createElement('button');
-        btn.className = `w-full text-left p-3 rounded-xl transition-all flex items-center justify-between hover:bg-slate-800/60 cursor-pointer ${activePartnerId === p.id ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/20 shadow-inner' : 'border border-transparent'}`;
-        btn.innerHTML = `
-          <div class="flex items-center gap-3 overflow-hidden">
-            <div class="w-8 h-8 rounded-lg bg-slate-700 text-slate-200 flex items-center justify-center text-xs font-bold uppercase border border-slate-600/40">${p.username[0]}</div>
-            <span class="font-semibold text-xs truncate text-slate-200">${p.username}</span>
-          </div>
-          <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
-        `;
-        btn.onclick = () => openActiveChannel(p);
-        usersList.appendChild(btn);
-      });
-    }
-
-    searchInput.addEventListener('input', drawSidebarElements);
-
-    function openActiveChannel(profile) {
-      activePartnerId = profile.id;
-      activeChatPartner.textContent = `💬 ${profile.username}`;
-      
-      messageInput.removeAttribute('disabled');
-      sendBtn.removeAttribute('disabled');
-      messageInput.placeholder = `Message ${profile.username}...`;
-      
-      fetchMessageLogs();
-      handleResponsiveSlide(true);
-      drawSidebarElements();
-    }
-
-    // ================= MESSAGING ENGINE LOGIC =================
-    async function fetchMessageLogs() {
-      if (!activePartnerId || !activeSessionUser) return;
-      
-      const { data: logs, error } = await supabase
-        .from('private_messages')
-        .select('*')
-        .or(`and(sender_id.eq.${activeSessionUser.id},receiver_id.eq.${activePartnerId}),and(sender_id.eq.${activePartnerId},receiver_id.eq.${activeSessionUser.id})`)
-        .order('created_at', { ascending: true });
-
-      if (error) return;
-
-      chatBox.innerHTML = '';
-      if (logs.length > 0) {
-        logs.forEach(msg => {
-          const checkSelf = msg.sender_id === activeSessionUser.id;
-          const row = document.createElement('div');
-          row.className = `w-full flex flex-col ${checkSelf ? 'items-end' : 'items-start'}`;
-          row.innerHTML = `
-            <div class="max-w-[80%] md:max-w-[65%] px-4 py-2.5 my-0.5 rounded-2xl text-xs leading-relaxed font-normal shadow-sm ${checkSelf ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700/60'}">
-              ${msg.content}
-            </div>
-          `;
-          chatBox.appendChild(row);
-        });
-      } else {
-        chatBox.innerHTML = `<div class="text-center text-slate-500 mt-20 text-xs tracking-wide">Secure channel ready. Wire an insertion block payload below.</div>`;
-      }
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    chatForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const payloadText = messageInput.value.trim();
-      if (!payloadText || !activePartnerId) return;
-
-      messageInput.value = '';
-
-      const { error } = await supabase.from('private_messages').insert({
-        sender_id: activeSessionUser.id,
-        receiver_id: activePartnerId,
-        content: payloadText
-      });
-
-      if (error) alert("Pipeline dropped payload: " + error.message);
-      fetchMessageLogs();
-    });
-
-    // Realtime Database Event Binding Pipeline
-    function bindRealtimeMessagePipeline() {
-      supabase
-        .channel('public-messages-instance')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'private_messages' }, () => {
-          fetchMessageLogs();
-        })
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
-          syncRegisteredProfiles();
-        })
-        .subscribe();
-    }
-
-    // ================= INTERFACE RESPONSIVENESS =================
-    function handleResponsiveSlide(showWorkspace) {
-      if (window.innerWidth < 768) {
-        if (showWorkspace) {
-          sidebarContainer.classList.add('-translate-x-full');
-          chatContainer.classList.remove('translate-x-full');
+        if (isSignUpMode) {
+          authTitle.textContent = "CREATE EPHY ACCOUNT";
+          authSubmitBtn.textContent = "Sign Up";
+          authSwitchText.textContent = "Already verified?";
+          authSwitchBtn.textContent = "Log In";
         } else {
-          sidebarContainer.classList.remove('-translate-x-full');
-          chatContainer.classList.add('translate-x-full');
+          authTitle.textContent = "EPHY CHAT PRO";
+          authSubmitBtn.textContent = "Log In";
+          authSwitchText.textContent = "New to the platform?";
+          authSwitchBtn.textContent = "Create Account";
+        }
+      });
+
+      // ================= AUTH MANAGEMENT DATA PIPELINES =================
+      authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = authEmail.value.trim();
+        const password = authPassword.value;
+
+        if (isSignUpMode) {
+          const { data, error } = await supabase.auth.signUp({ email, password });
+          if (error) return alert("Registration Reject: " + error.message);
+          
+          const generatedHandle = email.split('@')[0].toLowerCase();
+          if (data.user) {
+            await supabase.from('profiles').insert({ id: data.user.id, username: generatedHandle });
+          }
+          alert("Registration success profile provisioned! Accessing main stream...");
+          verifyLiveSession();
+        } else {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) return alert("Access Denied: " + error.message);
+          verifyLiveSession();
+        }
+      });
+
+      logoutBtn.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        appView.classList.add('hidden');
+        authView.classList.remove('hidden');
+        activeSessionUser = null;
+        activePartnerId = null;
+      });
+
+      async function verifyLiveSession() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && session.user) {
+          activeSessionUser = session.user;
+          authView.classList.add('hidden');
+          appView.classList.remove('hidden');
+          
+          const { data } = await supabase.from('profiles').select('username').eq('id', activeSessionUser.id).single();
+          const outputHandle = data ? data.username : activeSessionUser.email.split('@')[0];
+          
+          currentUserDisplay.textContent = outputHandle;
+          userAvatar.textContent = outputHandle[0].toUpperCase();
+
+          syncRegisteredProfiles();
+          bindRealtimeMessagePipeline();
         }
       }
-    }
 
-    mobileBackBtn.addEventListener('click', () => handleResponsiveSlide(false));
+      // ================= ROBUST SIDEBAR GRAPHICS RENDER =================
+      async function syncRegisteredProfiles() {
+        const { data: records, error } = await supabase.from('profiles').select('*');
+        if (error) return;
 
-    // Initial system boot verify check
-    verifyLiveSession();
+        fullyLoadedProfiles = records;
+        drawSidebarElements();
+      }
+
+      function drawSidebarElements() {
+        const queryFilter = searchInput.value.trim().toLowerCase();
+        usersList.innerHTML = '';
+
+        const structuralMatches = fullyLoadedProfiles.filter(p => {
+          if (p.id === activeSessionUser.id) return false;
+          return !queryFilter || p.username.toLowerCase().includes(queryFilter);
+        });
+
+        if (structuralMatches.length === 0) {
+          usersList.innerHTML = `<div class="text-xs text-slate-500 p-4 italic text-center">No profiles found</div>`;
+          return;
+        }
+
+        structuralMatches.forEach(p => {
+          const btn = document.createElement('button');
+          btn.className = `w-full text-left p-3 rounded-xl transition-all flex items-center justify-between hover:bg-slate-800/60 cursor-pointer ${activePartnerId === p.id ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/20 shadow-inner' : 'border border-transparent'}`;
+          btn.innerHTML = `
+            <div class="flex items-center gap-3 overflow-hidden">
+              <div class="w-8 h-8 rounded-lg bg-slate-700 text-slate-200 flex items-center justify-center text-xs font-bold uppercase border border-slate-600/40">${p.username[0]}</div>
+              <span class="font-semibold text-xs truncate text-slate-200">${p.username}</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
+          `;
+          btn.onclick = () => openActiveChannel(p);
+          usersList.appendChild(btn);
+        });
+      }
+
+      searchInput.addEventListener('input', drawSidebarElements);
+
+      function openActiveChannel(profile) {
+        activePartnerId = profile.id;
+        activeChatPartner.textContent = `💬 ${profile.username}`;
+        
+        messageInput.removeAttribute('disabled');
+        sendBtn.removeAttribute('disabled');
+        messageInput.placeholder = `Message ${profile.username}...`;
+        
+        fetchMessageLogs();
+        handleResponsiveSlide(true);
+        drawSidebarElements();
+      }
+
+      // ================= DATA TRANSCEIVER ENGINE =================
+      async function fetchMessageLogs() {
+        if (!activePartnerId || !activeSessionUser) return;
+        
+        const { data: logs, error } = await supabase
+          .from('private_messages')
+          .select('*')
+          .or(`and(sender_id.eq.${activeSessionUser.id},receiver_id.eq.${activePartnerId}),and(sender_id.eq.${activePartnerId},receiver_id.eq.${activeSessionUser.id})`)
+          .order('created_at', { ascending: true });
+
+        if (error) return;
+
+        chatBox.innerHTML = '';
+        if (logs.length > 0) {
+          logs.forEach(msg => {
+            const checkSelf = msg.sender_id === activeSessionUser.id;
+            const row = document.createElement('div');
+            row.className = `w-full flex flex-col ${checkSelf ? 'items-end' : 'items-start'}`;
+            row.innerHTML = `
+              <div class="max-w-[80%] md:max-w-[65%] px-4 py-2.5 my-0.5 rounded-2xl text-xs leading-relaxed font-normal shadow-sm ${checkSelf ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700/60'}">
+                ${msg.content}
+              </div>
+            `;
+            chatBox.appendChild(row);
+          });
+        } else {
+          chatBox.innerHTML = `<div class="text-center text-slate-500 mt-20 text-xs tracking-wide">Secure channel ready. Wire an insertion block payload below.</div>`;
+        }
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payloadText = messageInput.value.trim();
+        if (!payloadText || !activePartnerId) return;
+
+        messageInput.value = '';
+
+        const { error } = await supabase.from('private_messages').insert({
+          sender_id: activeSessionUser.id,
+          receiver_id: activePartnerId,
+          content: payloadText
+        });
+
+        if (error) alert("Pipeline dropped payload: " + error.message);
+        fetchMessageLogs();
+      });
+
+      function bindRealtimeMessagePipeline() {
+        supabase
+          .channel('public-messages-instance')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'private_messages' }, () => {
+            fetchMessageLogs();
+          })
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
+            syncRegisteredProfiles();
+          })
+          .subscribe();
+      }
+
+      // ================= RESPONSIVE VIEWPORTS =================
+      function handleResponsiveSlide(showWorkspace) {
+        if (window.innerWidth < 768) {
+          if (showWorkspace) {
+            sidebarContainer.classList.add('-translate-x-full');
+            chatContainer.classList.remove('translate-x-full');
+          } else {
+            sidebarContainer.classList.remove('-translate-x-full');
+            chatContainer.classList.add('translate-x-full');
+          }
+        }
+      }
+
+      mobileBackBtn.addEventListener('click', () => handleResponsiveSlide(false));
+
+      // Boot Engine Check
+      verifyLiveSession();
+    });
   </script>
 </body>
 </html>
