@@ -26,7 +26,7 @@
     
     <p class="text-center text-xs text-slate-400 mt-5">
       <span id="auth-switch-text">New to the platform?</span> 
-      <button id="auth-switch-btn" class="text-indigo-400 font-bold hover:underline cursor-pointer bg-transparent border-none ml-1">Create Account</button>
+      <button id="auth-switch-btn" onclick="toggleAuthMode(event)" class="text-indigo-400 font-bold hover:underline cursor-pointer bg-transparent border-none ml-1">Create Account</button>
     </p>
   </div>
 
@@ -119,19 +119,18 @@
     const logoutBtn = document.getElementById('logout-btn');
     const searchInput = document.getElementById('search-input');
 
-    // Cache to prevent structural search collisions
     let fullyLoadedProfiles = [];
 
-    // ================= AUTH MANAGEMENT IMPLEMENTATIONS =================
-    authSwitchBtn.addEventListener('click', (e) => {
-      e.preventDefault(); // Prevents layout switching from refreshing the form instance
+    // ================= GLOBAL FUNCTION AUTH SWITCHING =================
+    window.toggleAuthMode = function(e) {
+      if (e) e.preventDefault();
       isSignUpMode = !isSignUpMode;
       
       authTitle.textContent = isSignUpMode ? "CREATE EPHY ACCOUNT" : "EPHY CHAT PRO";
       authSubmitBtn.textContent = isSignUpMode ? "Sign Up" : "Log In";
       authSwitchText.textContent = isSignUpMode ? "Already verified?" : "New to the platform?";
       authSwitchBtn.textContent = isSignUpMode ? "Log In" : "Create Account";
-    });
+    }
 
     authForm.addEventListener('submit', async (e) => {
       e.preventDefault();
