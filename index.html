@@ -7,24 +7,28 @@
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 h-screen flex justify-center items-center font-sans overflow-hidden">
+<body class="bg-slate-950 text-slate-100 h-screen flex justify-center items-center font-sans overflow-hidden antialiased">
 
-  <div id="auth-view" class="w-full max-w-md p-6 bg-slate-800 rounded-2xl border border-slate-700 shadow-xl mx-4">
-    <h2 id="auth-title" class="text-2xl font-bold text-center text-indigo-400 mb-6 font-mono tracking-wide">EPHY CHAT PRO</h2>
+  <div id="auth-view" class="w-full max-w-md p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl mx-4 transition-all duration-300">
+    <div class="flex justify-center mb-4">
+      <div class="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center font-black tracking-wider text-xl text-white shadow-lg shadow-indigo-500/20">E</div>
+    </div>
+    <h2 id="auth-title" class="text-xl font-bold text-center tracking-wide text-white uppercase mb-1">EPHY CHAT PRO</h2>
+    <p class="text-center text-xs text-slate-400 mb-6 font-light">Secure Enterprise Communication Instance</p>
     
     <form id="auth-form" class="space-y-4">
       <div>
-        <label class="block text-[10px] font-bold text-slate-400 mb-1 tracking-wider">EMAIL ADDRESS</label>
-        <input id="auth-email" type="email" required placeholder="you@example.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+        <label class="block text-[10px] font-bold text-slate-400 mb-1.5 tracking-wider uppercase">Email Address</label>
+        <input id="auth-email" type="email" required placeholder="name@domain.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
       </div>
       <div>
-        <label class="block text-[10px] font-bold text-slate-400 mb-1 tracking-wider">PASSWORD</label>
-        <input id="auth-password" type="password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+        <label class="block text-[10px] font-bold text-slate-400 mb-1.5 tracking-wider uppercase">Password</label>
+        <input id="auth-password" type="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
       </div>
-      <button type="submit" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition text-sm cursor-pointer shadow-lg mt-2">Log In</button>
+      <button type="submit" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition text-sm cursor-pointer shadow-lg shadow-indigo-600/10 mt-2">Log In</button>
     </form>
     
-    <p class="text-center text-xs text-slate-400 mt-5">
+    <p class="text-center text-xs text-slate-400 mt-6 pt-4 border-t border-slate-800/60">
       <span id="auth-switch-text">New to the platform?</span> 
       <button id="auth-switch-btn" class="text-indigo-400 font-bold hover:underline cursor-pointer bg-transparent border-none ml-1">Create Account</button>
     </p>
@@ -32,71 +36,136 @@
 
   <div id="app-view" class="w-full h-full flex relative hidden">
     
-    <aside id="sidebar-container" class="w-full md:w-80 bg-slate-800 border-r border-slate-700 flex flex-col h-full flex-shrink-0 absolute md:relative z-20 transition-transform duration-300 translate-x-0">
+    <aside id="sidebar-container" class="w-full md:w-80 bg-slate-900 border-r border-slate-800 flex flex-col h-full flex-shrink-0 absolute md:relative z-20 transition-transform duration-300 translate-x-0">
       
-      <div class="p-4 border-b border-slate-700 flex items-center justify-between gap-3 bg-slate-800/50">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between gap-3 bg-slate-900/50">
         <div class="flex items-center gap-3 overflow-hidden">
-          <div id="user-avatar" class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white shadow-md border border-indigo-400/20">
+          <div id="user-avatar" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-bold text-white shadow-md border border-indigo-400/10 uppercase">
             ?
           </div>
           <div class="truncate">
-            <h3 id="current-user-display" class="font-bold text-indigo-400 text-sm truncate">...</h3>
-            <p class="text-[10px] text-emerald-400 flex items-center gap-1">● Session Active</p>
+            <h3 id="current-user-display" class="font-bold text-slate-200 text-sm truncate">...</h3>
+            <p class="text-[10px] text-emerald-400 flex items-center gap-1 font-medium">● Online</p>
           </div>
         </div>
-        <button id="logout-btn" class="text-xs bg-slate-700/60 hover:bg-rose-600/90 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg transition-all font-medium cursor-pointer border border-slate-600/40">Exit</button>
+        <div class="flex items-center gap-1">
+          <button id="settings-trigger-btn" title="Settings" class="p-2 text-slate-400 hover:text-white bg-slate-800/40 hover:bg-slate-800 rounded-lg transition cursor-pointer">⚙️</button>
+          <button id="logout-btn" title="Logout" class="p-2 text-slate-400 hover:text-rose-400 bg-slate-800/40 hover:bg-rose-950/30 rounded-lg transition cursor-pointer">🚪</button>
+        </div>
       </div>
 
-      <div class="p-3 border-b border-slate-700/60">
-        <input id="search-input" type="text" placeholder="Search direct feeds..." class="w-full text-xs bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 focus:outline-none focus:border-indigo-500 text-white placeholder-slate-500">
+      <div class="p-3 border-b border-slate-800/60 space-y-2">
+        <input id="search-input" type="text" placeholder="Search entries..." class="w-full text-xs bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 focus:outline-none focus:border-indigo-500 text-white placeholder-slate-600">
+        <button id="group-trigger-btn" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-medium py-2 px-3 rounded-lg text-xs transition cursor-pointer flex items-center justify-center gap-1.5 border border-slate-700/30">
+          ➕ Create New Channel Group
+        </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-2">
-        <h4 class="text-[10px] font-bold tracking-widest text-slate-400 uppercase px-2 mb-2">💬 Direct Feed</h4>
-        <div id="users-list" class="space-y-1">
-          <div class="text-xs text-slate-500 p-2 italic text-center">No active connections found.</div>
+      <div class="flex-1 overflow-y-auto p-2 space-y-4">
+        <div>
+          <h4 class="text-[10px] font-bold tracking-widest text-slate-500 uppercase px-2 mb-1.5">💬 Direct Terminals</h4>
+          <div id="users-list" class="space-y-0.5">
+            <div class="text-xs text-slate-600 p-2 italic text-center">No open nodes.</div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-[10px] font-bold tracking-widest text-slate-500 uppercase px-2 mb-1.5">👥 Channel Groups</h4>
+          <div id="groups-list" class="space-y-0.5">
+            <div class="text-xs text-slate-600 p-2 italic text-center">No operational channels.</div>
+          </div>
         </div>
       </div>
     </aside>
 
-    <main id="chat-container" class="flex-1 flex flex-col justify-between bg-slate-900 h-full w-full absolute md:relative z-10 transition-transform duration-300 translate-x-full md:translate-x-0">
+    <main id="chat-container" class="flex-1 flex flex-col justify-between bg-slate-950 h-full w-full absolute md:relative z-10 transition-transform duration-300 translate-x-full md:translate-x-0">
       
-      <header class="bg-slate-800/60 backdrop-blur-md p-4 border-b border-slate-700 flex items-center gap-3 shadow-md">
-        <button id="mobile-back-btn" class="md:hidden text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg transition font-medium">
+      <header class="bg-slate-900/80 backdrop-blur-md p-4 border-b border-slate-800 flex items-center gap-3 shadow-md">
+        <button id="mobile-back-btn" class="md:hidden text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition font-medium">
           ⬅ Channels
         </button>
-        <h2 id="active-chat-partner" class="font-bold text-sm md:text-base text-slate-200 truncate">Select an open channel to start</h2>
+        <h2 id="active-chat-partner" class="font-bold text-sm md:text-base text-slate-200 truncate">Select an open node to mount log streams</h2>
       </header>
 
-      <div id="chat-box" class="flex-1 p-4 md:p-6 overflow-y-auto space-y-3 bg-slate-900/10">
-        <div class="text-center text-slate-500 mt-20 text-sm max-w-sm mx-auto font-light">
-          Welcome to your new terminal instance. Select an online teammate on the left navigation tree to launch interaction logs.
+      <div id="chat-box" class="flex-1 p-4 md:p-6 overflow-y-auto space-y-3 bg-slate-950">
+        <div class="text-center text-slate-600 mt-20 text-sm max-w-sm mx-auto font-light leading-relaxed">
+          Welcome to the control instance. Select an active teammate connection or collaborative group environment on the navigation panel to mount logs.
         </div>
       </div>
 
-      <footer class="p-4 bg-slate-800/40 border-t border-slate-700">
+      <footer class="p-4 bg-slate-900/60 border-t border-slate-800">
         <form id="chat-form" class="flex items-center gap-2 max-w-5xl mx-auto">
-          <input id="message-input" type="text" disabled placeholder="Select a conversation channel..." autocomplete="off" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-40">
-          <button type="submit" id="send-btn" disabled class="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 text-white font-medium px-6 py-3 rounded-xl transition text-sm cursor-pointer shadow-md">Send</button>
+          <input id="message-input" type="text" disabled placeholder="Mount a session to message..." autocomplete="off" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-40">
+          <button type="submit" id="send-btn" disabled class="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-900 disabled:text-slate-700 text-white font-medium px-6 py-3 rounded-xl transition text-sm cursor-pointer shadow-md">Send</button>
         </form>
       </footer>
     </main>
   </div>
 
+  <div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4 transition-all">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
+        <h3 class="font-bold text-sm text-slate-200 tracking-wide uppercase">Workspace Preferences</h3>
+        <button id="settings-close-btn" class="text-slate-400 hover:text-white font-bold text-sm bg-slate-800 h-7 w-7 rounded-lg transition cursor-pointer flex items-center justify-center">✕</button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 mb-1.5 tracking-wider uppercase">Update System Username</label>
+          <input id="settings-username" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div class="pt-2 border-t border-slate-800/60">
+          <h4 class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mb-2">Privacy Matrix Toggles</h4>
+          <div class="space-y-2">
+            <label class="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800/60 cursor-pointer">
+              <span class="text-xs text-slate-300 font-medium">Private Account Mode</span>
+              <input id="settings-private-toggle" type="checkbox" class="accent-indigo-500 h-4 w-4">
+            </label>
+            <label class="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800/60 cursor-pointer">
+              <span class="text-xs text-slate-300 font-medium">Hide Telemetry Activity Status</span>
+              <input type="checkbox" class="accent-indigo-500 h-4 w-4" checked>
+            </label>
+          </div>
+        </div>
+        <button id="settings-save-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition text-xs cursor-pointer shadow-md mt-2">Save Profile Rules</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="group-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4 transition-all">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
+        <h3 class="font-bold text-sm text-slate-200 tracking-wide uppercase">Provision New Cluster Group</h3>
+        <button id="group-close-btn" class="text-slate-400 hover:text-white font-bold text-sm bg-slate-800 h-7 w-7 rounded-lg transition cursor-pointer flex items-center justify-center">✕</button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 mb-1.5 tracking-wider uppercase">Group Hub Identifier Name</label>
+          <input id="group-name-input" type="text" placeholder="e.g. Core System Devs" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 mb-1.5 tracking-wider uppercase">Select Teammates to Provision</label>
+          <div id="group-members-selection" class="max-h-40 overflow-y-auto bg-slate-950 border border-slate-800 rounded-xl p-2 space-y-1">
+            </div>
+        </div>
+        <button id="group-create-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition text-xs cursor-pointer shadow-md mt-2">Instantiate Group Stream</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // Setup Environment Credentials
+      // Configuration Registry Settings
       const SUPABASE_URL = "https://dwtroohkdmpmzfbrvzzn.supabase.co"; //
       const SUPABASE_ANON_KEY = "sb_publishable_O6L-x2Vd9RgDrxDYd7papA_D8WIRXNS";
 
-      // Fixed initialization namespace
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       let activeSessionUser = null;
       let activePartnerId = null;
+      let activeGroupId = null;
       let isSignUpMode = false;
 
-      // Safe Element Target DOM Mappings
+      // Element Registry Cache Mapping
       const authView = document.getElementById('auth-view');
       const appView = document.getElementById('app-view');
       const authForm = document.getElementById('auth-form');
@@ -113,36 +182,44 @@
       const currentUserDisplay = document.getElementById('current-user-display');
       const userAvatar = document.getElementById('user-avatar');
       const usersList = document.getElementById('users-list');
+      const groupsList = document.getElementById('groups-list');
       const activeChatPartner = document.getElementById('active-chat-partner');
       const chatBox = document.getElementById('chat-box');
-      const chatForm = document.getElementById('chat-form'); // Target collision eliminated
+      const chatForm = document.getElementById('chat-form');
       const messageInput = document.getElementById('message-input');
       const sendBtn = document.getElementById('send-btn');
       const logoutBtn = document.getElementById('logout-btn');
       const searchInput = document.getElementById('search-input');
 
-      let fullyLoadedProfiles = [];
+      // Modals Nodes
+      const settingsModal = document.getElementById('settings-modal');
+      const settingsTriggerBtn = document.getElementById('settings-trigger-btn');
+      const settingsCloseBtn = document.getElementById('settings-close-btn');
+      const settingsUsername = document.getElementById('settings-username');
+      const settingsPrivateToggle = document.getElementById('settings-private-toggle');
+      const settingsSaveBtn = document.getElementById('settings-save-btn');
 
-      // ================= VIEW ENGINE TOGGLES =================
+      const groupModal = document.getElementById('group-modal');
+      const groupTriggerBtn = document.getElementById('group-trigger-btn');
+      const groupCloseBtn = document.getElementById('group-close-btn');
+      const groupNameInput = document.getElementById('group-name-input');
+      const groupMembersSelection = document.getElementById('group-members-selection');
+      const groupCreateSubmitBtn = document.getElementById('group-create-submit-btn');
+
+      let fullyLoadedProfiles = [];
+      let fullyLoadedGroups = [];
+
+      // ================= VIEW SWITCHER ACTIONS =================
       authSwitchBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        e.stopPropagation();
         isSignUpMode = !isSignUpMode;
-        
-        if (isSignUpMode) {
-          authTitle.textContent = "CREATE EPHY ACCOUNT";
-          authSubmitBtn.textContent = "Sign Up";
-          authSwitchText.textContent = "Already verified?";
-          authSwitchBtn.textContent = "Log In";
-        } else {
-          authTitle.textContent = "EPHY CHAT PRO";
-          authSubmitBtn.textContent = "Log In";
-          authSwitchText.textContent = "New to the platform?";
-          authSwitchBtn.textContent = "Create Account";
-        }
+        authTitle.textContent = isSignUpMode ? "CREATE EPHY ACCOUNT" : "EPHY CHAT PRO";
+        authSubmitBtn.textContent = isSignUpMode ? "Sign Up" : "Log In";
+        authSwitchText.textContent = isSignUpMode ? "Already verified?" : "New to the platform?";
+        authSwitchBtn.textContent = isSignUpMode ? "Log In" : "Create Account";
       });
 
-      // ================= AUTH MANAGEMENT DATA PIPELINES =================
+      // ================= AUTH DATA CONNECTIONS =================
       authForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = authEmail.value.trim();
@@ -150,17 +227,17 @@
 
         if (isSignUpMode) {
           const { data, error } = await supabase.auth.signUp({ email, password });
-          if (error) return alert("Registration Reject: " + error.message);
+          if (error) return alert("System Auth Flag: " + error.message);
           
           const generatedHandle = email.split('@')[0].toLowerCase();
           if (data.user) {
-            await supabase.from('profiles').insert({ id: data.user.id, username: generatedHandle });
+            await supabase.from('profiles').insert({ id: data.user.id, username: generatedHandle, private_mode: false });
           }
-          alert("Registration success profile provisioned! Accessing main stream...");
+          alert("Profile allocated to network matrix cluster!");
           verifyLiveSession();
         } else {
           const { error } = await supabase.auth.signInWithPassword({ email, password });
-          if (error) return alert("Access Denied: " + error.message);
+          if (error) return alert("System Rejection: " + error.message);
           verifyLiveSession();
         }
       });
@@ -171,6 +248,7 @@
         authView.classList.remove('hidden');
         activeSessionUser = null;
         activePartnerId = null;
+        activeGroupId = null;
       });
 
       async function verifyLiveSession() {
@@ -180,97 +258,201 @@
           authView.classList.add('hidden');
           appView.classList.remove('hidden');
           
-          const { data } = await supabase.from('profiles').select('username').eq('id', activeSessionUser.id).single();
-          const outputHandle = data ? data.username : activeSessionUser.email.split('@')[0];
+          const { data } = await supabase.from('profiles').select('*').eq('id', activeSessionUser.id).single();
+          const currentUsername = data ? data.username : activeSessionUser.email.split('@')[0];
           
-          currentUserDisplay.textContent = outputHandle;
-          userAvatar.textContent = outputHandle[0].toUpperCase();
+          currentUserDisplay.textContent = currentUsername;
+          userAvatar.textContent = currentUsername[0].toUpperCase();
+          settingsUsername.value = currentUsername;
+          if(data) settingsPrivateToggle.checked = data.private_mode || false;
 
-          syncRegisteredProfiles();
+          syncFeedsPipeline();
           bindRealtimeMessagePipeline();
         }
       }
 
-      // ================= ROBUST SIDEBAR GRAPHICS RENDER =================
-      async function syncRegisteredProfiles() {
-        const { data: records, error } = await supabase.from('profiles').select('*');
-        if (error) return;
+      // ================= DATA FETCHING ENGINE =================
+      async function syncFeedsPipeline() {
+        // Fetch User Profiles
+        const { data: userRecords } = await supabase.from('profiles').select('*');
+        fullyLoadedProfiles = userRecords || [];
 
-        fullyLoadedProfiles = records;
+        // Fetch Group Profiles
+        const { data: groupRecords } = await supabase.from('chat_groups').select('*');
+        fullyLoadedGroups = groupRecords || [];
+
         drawSidebarElements();
+        drawGroupSelectionList();
       }
 
       function drawSidebarElements() {
-        const queryFilter = searchInput.value.trim().toLowerCase();
+        const filter = searchInput.value.trim().toLowerCase();
+        
+        // 1. Compile User List
         usersList.innerHTML = '';
-
-        const structuralMatches = fullyLoadedProfiles.filter(p => {
+        const filteredUsers = fullyLoadedProfiles.filter(p => {
           if (p.id === activeSessionUser.id) return false;
-          return !queryFilter || p.username.toLowerCase().includes(queryFilter);
+          if (p.private_mode && activePartnerId !== p.id) return false; // Enforce explicit privacy mode context masking
+          return !filter || p.username.toLowerCase().includes(filter);
         });
 
-        if (structuralMatches.length === 0) {
-          usersList.innerHTML = `<div class="text-xs text-slate-500 p-4 italic text-center">No profiles found</div>`;
-          return;
+        if (filteredUsers.length === 0) {
+          usersList.innerHTML = `<div class="text-xs text-slate-600 p-2 italic text-center">No connections matched</div>`;
+        } else {
+          filteredUsers.forEach(p => {
+            const btn = document.createElement('button');
+            btn.className = `w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between hover:bg-slate-800/40 cursor-pointer ${activePartnerId === p.id && !activeGroupId ? 'bg-indigo-600/10 text-indigo-400 font-bold border border-indigo-500/10' : 'border border-transparent'}`;
+            btn.innerHTML = `
+              <div class="flex items-center gap-2.5 overflow-hidden">
+                <div class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-[11px] font-bold uppercase border border-slate-700/30">${p.username[0]}</div>
+                <span class="font-medium text-xs truncate text-slate-300">${p.username}</span>
+              </div>
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            `;
+            btn.onclick = () => openDirectChannel(p);
+            usersList.appendChild(btn);
+          });
         }
 
-        structuralMatches.forEach(p => {
-          const btn = document.createElement('button');
-          btn.className = `w-full text-left p-3 rounded-xl transition-all flex items-center justify-between hover:bg-slate-800/60 cursor-pointer ${activePartnerId === p.id ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/20 shadow-inner' : 'border border-transparent'}`;
-          btn.innerHTML = `
-            <div class="flex items-center gap-3 overflow-hidden">
-              <div class="w-8 h-8 rounded-lg bg-slate-700 text-slate-200 flex items-center justify-center text-xs font-bold uppercase border border-slate-600/40">${p.username[0]}</div>
-              <span class="font-semibold text-xs truncate text-slate-200">${p.username}</span>
-            </div>
-            <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
-          `;
-          btn.onclick = () => openActiveChannel(p);
-          usersList.appendChild(btn);
-        });
+        // 2. Compile Cluster Groups List
+        groupsList.innerHTML = '';
+        const filteredGroups = fullyLoadedGroups.filter(g => !filter || g.name.toLowerCase().includes(filter));
+
+        if (filteredGroups.length === 0) {
+          groupsList.innerHTML = `<div class="text-xs text-slate-600 p-2 italic text-center">No channels active</div>`;
+        } else {
+          filteredGroups.forEach(g => {
+            const btn = document.createElement('button');
+            btn.className = `w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between hover:bg-slate-800/40 cursor-pointer ${activeGroupId === g.id ? 'bg-indigo-600/10 text-indigo-400 font-bold border border-indigo-500/10' : 'border border-transparent'}`;
+            btn.innerHTML = `
+              <div class="flex items-center gap-2.5 overflow-hidden">
+                <div class="w-7 h-7 rounded-lg bg-indigo-950/40 text-indigo-400 flex items-center justify-center text-[11px] font-bold border border-indigo-900/30">#</div>
+                <span class="font-medium text-xs truncate text-slate-300">${g.name}</span>
+              </div>
+            `;
+            btn.onclick = () => openGroupChannel(g);
+            groupsList.appendChild(btn);
+          });
+        }
       }
 
       searchInput.addEventListener('input', drawSidebarElements);
 
-      function openActiveChannel(profile) {
+      function openDirectChannel(profile) {
         activePartnerId = profile.id;
-        activeChatPartner.textContent = `💬 ${profile.username}`;
-        
+        activeGroupId = null;
+        activeChatPartner.textContent = `👤 ${profile.username}`;
+        mountWorkspaceInputs(`Message ${profile.username}...`);
+        fetchMessageLogs();
+      }
+
+      function openGroupChannel(group) {
+        activeGroupId = group.id;
+        activePartnerId = null;
+        activeChatPartner.textContent = `👥 ${group.name} Channel Instance`;
+        mountWorkspaceInputs(`Broadcast to ${group.name}...`);
+        fetchMessageLogs();
+      }
+
+      function mountWorkspaceInputs(placeholderText) {
         messageInput.removeAttribute('disabled');
         sendBtn.removeAttribute('disabled');
-        messageInput.placeholder = `Message ${profile.username}...`;
-        
-        fetchMessageLogs();
+        messageInput.placeholder = placeholderText;
         handleResponsiveSlide(true);
         drawSidebarElements();
       }
 
-      // ================= DATA TRANSCEIVER ENGINE =================
-      async function fetchMessageLogs() {
-        if (!activePartnerId || !activeSessionUser) return;
+      // ================= PREFERENCES & SETTINGS ACTIONS =================
+      settingsTriggerBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
+      settingsCloseBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
+      
+      settingsSaveBtn.addEventListener('click', async () => {
+        const updatedHandle = settingsUsername.value.trim().toLowerCase();
+        const privateFlag = settingsPrivateToggle.checked;
+
+        if(!updatedHandle) return alert("Handle cannot execute blank");
+
+        const { error } = await supabase.from('profiles').update({ username: updatedHandle, private_mode: privateFlag }).eq('id', activeSessionUser.id);
+        if(error) return alert("Matrix update error: " + error.message);
         
-        const { data: logs, error } = await supabase
-          .from('private_messages')
-          .select('*')
-          .or(`and(sender_id.eq.${activeSessionUser.id},receiver_id.eq.${activePartnerId}),and(sender_id.eq.${activePartnerId},receiver_id.eq.${activeSessionUser.id})`)
-          .order('created_at', { ascending: true });
+        alert("System profile specifications stored successfully.");
+        settingsModal.classList.add('hidden');
+        verifyLiveSession();
+      });
 
-        if (error) return;
+      // ================= GROUP PROVISIONING ACTIONS =================
+      groupTriggerBtn.addEventListener('click', () => groupModal.classList.remove('hidden'));
+      groupCloseBtn.addEventListener('click', () => groupModal.classList.add('hidden'));
 
+      function drawGroupSelectionList() {
+        groupMembersSelection.innerHTML = '';
+        fullyLoadedProfiles.forEach(p => {
+          if (p.id === activeSessionUser.id) return;
+          const label = document.createElement('label');
+          label.className = "flex items-center gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800/40 text-xs text-slate-300 cursor-pointer hover:bg-slate-800/20";
+          label.innerHTML = `
+            <input type="checkbox" value="${p.id}" class="accent-indigo-500 h-3.5 w-3.5 rounded">
+            <span>${p.username}</span>
+          `;
+          groupMembersSelection.appendChild(label);
+        });
+      }
+
+      groupCreateSubmitBtn.addEventListener('click', async () => {
+        const targetTitle = groupNameInput.value.trim();
+        if(!targetTitle) return alert("Enter structural group name");
+
+        const selectedNodes = Array.from(groupMembersSelection.querySelectorAll('input[type="checkbox"]:checked')).map(el => el.value);
+        selectedNodes.push(activeSessionUser.id); // Secure host logic entry
+
+        const { data, error } = await supabase.from('chat_groups').insert({ name: targetTitle, created_by: activeSessionUser.id }).select().single();
+        if(error) return alert("Group initialization dropped: " + error.message);
+
+        groupNameInput.value = '';
+        groupModal.classList.add('hidden');
+        syncFeedsPipeline();
+      });
+
+      // ================= MESSAGING TRANSMISSION ENGINE =================
+      async function fetchMessageLogs() {
+        if (!activeSessionUser) return;
         chatBox.innerHTML = '';
+
+        let logs = [];
+        if (activeGroupId) {
+          // Pull Group Broadcaster Entries
+          const { data } = await supabase.from('private_messages').select('*').eq('group_id', activeGroupId).order('created_at', { ascending: true });
+          logs = data || [];
+        } else if (activePartnerId) {
+          // Pull Peer-to-Peer Pipeline Entries
+          const { data } = await supabase.from('private_messages')
+            .select('*')
+            .or(`and(sender_id.eq.${activeSessionUser.id},receiver_id.eq.${activePartnerId}),and(sender_id.eq.${activePartnerId},receiver_id.eq.${activeSessionUser.id})`)
+            .is('group_id', null)
+            .order('created_at', { ascending: true });
+          logs = data || [];
+        } else {
+          return;
+        }
+
         if (logs.length > 0) {
           logs.forEach(msg => {
             const checkSelf = msg.sender_id === activeSessionUser.id;
+            const senderProfile = fullyLoadedProfiles.find(p => p.id === msg.sender_id);
+            const displayLabel = senderProfile ? senderProfile.username : 'Unknown Node';
+
             const row = document.createElement('div');
             row.className = `w-full flex flex-col ${checkSelf ? 'items-end' : 'items-start'}`;
             row.innerHTML = `
-              <div class="max-w-[80%] md:max-w-[65%] px-4 py-2.5 my-0.5 rounded-2xl text-xs leading-relaxed font-normal shadow-sm ${checkSelf ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700/60'}">
+              ${activeGroupId && !checkSelf ? `<span class="text-[10px] text-slate-500 font-bold mb-0.5 ml-1 uppercase tracking-wider">${displayLabel}</span>` : ''}
+              <div class="max-w-[75%] md:max-w-[60%] px-4 py-2.5 my-0.5 rounded-2xl text-xs leading-relaxed shadow-sm font-normal ${checkSelf ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none'}">
                 ${msg.content}
               </div>
             `;
             chatBox.appendChild(row);
           });
         } else {
-          chatBox.innerHTML = `<div class="text-center text-slate-500 mt-20 text-xs tracking-wide">Secure channel ready. Wire an insertion block payload below.</div>`;
+          chatBox.innerHTML = `<div class="text-center text-slate-600 mt-20 text-xs tracking-wide">Workspace feed isolated. Cryptographic safe socket locked.</div>`;
         }
         chatBox.scrollTop = chatBox.scrollHeight;
       }
@@ -278,33 +460,29 @@
       chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const payloadText = messageInput.value.trim();
-        if (!payloadText || !activePartnerId) return;
+        if (!payloadText) return;
 
         messageInput.value = '';
+        const payloadObject = { sender_id: activeSessionUser.id, content: payloadText };
+        
+        if (activeGroupId) payloadObject.group_id = activeGroupId;
+        else if (activePartnerId) payloadObject.receiver_id = activePartnerId;
 
-        const { error } = await supabase.from('private_messages').insert({
-          sender_id: activeSessionUser.id,
-          receiver_id: activePartnerId,
-          content: payloadText
-        });
-
-        if (error) alert("Pipeline dropped payload: " + error.message);
+        const { error } = await supabase.from('private_messages').insert(payloadObject);
+        if (error) alert("Packet loss detected: " + error.message);
         fetchMessageLogs();
       });
 
       function bindRealtimeMessagePipeline() {
         supabase
-          .channel('public-messages-instance')
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'private_messages' }, () => {
-            fetchMessageLogs();
-          })
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
-            syncRegisteredProfiles();
-          })
+          .channel('enterprise-sync-instance')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'private_messages' }, () => { fetchMessageLogs(); })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => { syncFeedsPipeline(); })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_groups' }, () => { syncFeedsPipeline(); })
           .subscribe();
       }
 
-      // ================= RESPONSIVE VIEWPORTS =================
+      // ================= VIEWPORT SCALE RESPONSIVENESS =================
       function handleResponsiveSlide(showWorkspace) {
         if (window.innerWidth < 768) {
           if (showWorkspace) {
@@ -319,7 +497,7 @@
 
       mobileBackBtn.addEventListener('click', () => handleResponsiveSlide(false));
 
-      // Boot Engine Check
+      // Assert Engine Boot
       verifyLiveSession();
     });
   </script>
