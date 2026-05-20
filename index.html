@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ephy Chat Pro</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 h-screen flex justify-center items-center font-sans overflow-hidden">
+
+  <div id="auth-view" class="w-full max-w-md p-6 bg-slate-800 rounded-2xl border border-slate-700 shadow-xl mx-4">
+    <h2 id="auth-title" class="text-2xl font-bold text-center text-indigo-400 mb-6 font-mono tracking-wide">EPHY CHAT PRO</h2>
+    
+    <form id="auth-form" class="space-y-4">
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 mb-1 tracking-wider">EMAIL ADDRESS</label>
+        <input id="auth-email" type="email" required placeholder="you@example.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 mb-1 tracking-wider">PASSWORD</label>
+        <input id="auth-password" type="password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+      </div>
+      <button type="submit" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition text-sm cursor-pointer shadow-lg mt-2">Log In</button>
+    </form>
+    
+    <p class="text-center text-xs text-slate-400 mt-5">
+      <span id="auth-switch-text">New to the platform?</span> 
+      <button id="auth-switch-btn" class="text-indigo-400 font-bold hover:underline cursor-pointer bg-transparent border-none ml-1">Create Account</button>
+    </p>
+  </div>
+
+  <div id="app-view" class="w-full h-full flex relative hidden">
+    
+    <aside id="sidebar-container" class="w-full md:w-80 bg-slate-800 border-r border-slate-700 flex flex-col h-full flex-shrink-0 absolute md:relative z-20 transition-transform duration-300 translate-x-0">
+      
+      <div class="p-4 border-b border-slate-700 flex items-center justify-between gap-3 bg-slate-800/50">
+        <div class="flex items-center gap-3 overflow-hidden">
+          <div id="user-avatar" class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white shadow-md border border-indigo-400/20">
+            ?
+          </div>
+          <div class="truncate">
+            <h3 id="current-user-display" class="font-bold text-indigo-400 text-sm truncate">...</h3>
+            <p class="text-[10px] text-emerald-400 flex items-center gap-1">● Session Active</p>
+          </div>
+        </div>
+        <button id="logout-btn" class="text-xs bg-slate-700/60 hover:bg-rose-600/90 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg transition-all font-medium cursor-pointer border border-slate-600/40">Exit</button>
+      </div>
+
+      <div class="p-3 border-b border-slate-700/60">
+        <input id="search-input" type="text" placeholder="Search direct feeds..." class="w-full text-xs bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 focus:outline-none focus:border-indigo-500 text-white placeholder-slate-500">
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-2">
+        <h4 class="text-[10px] font-bold tracking-widest text-slate-400 uppercase px-2 mb-2">💬 Direct Feed</h4>
+        <div id="users-list" class="space-y-1">
+          <div class="text-xs text-slate-500 p-2 italic text-center">No active connections found.</div>
+        </div>
+      </div>
+    </aside>
+
+    <main id="chat-container" class="flex-1 flex flex-col justify-between bg-slate-900 h-full w-full absolute md:relative z-10 transition-transform duration-300 translate-x-full md:translate-x-0">
+      
+      <header class="bg-slate-800/60 backdrop-blur-md p-4 border-b border-slate-700 flex items-center gap-3 shadow-md">
+        <button id="mobile-back-btn" class="md:hidden text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg transition font-medium">
+          ⬅ Channels
+        </button>
+        <h2 id="active-chat-partner" class="font-bold text-sm md:text-base text-slate-200 truncate">Select an open channel to start</h2>
+      </header>
+
+      <div id="chat-box" class="flex-1 p-4 md:p-6 overflow-y-auto space-y-3 bg-slate-900/10">
+        <div class="text-center text-slate-500 mt-20 text-sm max-w-sm mx-auto font-light">
+          Welcome to your new terminal instance. Select an online teammate on the left navigation tree to launch interaction logs.
+        </div>
+      </div>
+
+      <footer class="p-4 bg-slate-800/40 border-t border-slate-700">
+        <form id="chat-form" class="flex items-center gap-2 max-w-5xl mx-auto">
+          <input id="message-input" type="text" disabled placeholder="Select a conversation channel..." autocomplete="off" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-40">
+          <button type="submit" id="send-btn" disabled class="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 text-white font-medium px-6 py-3 rounded-xl transition text-sm cursor-pointer shadow-md">Send</button>
+        </form>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // ================= CLIENT CORE INSTANCE ENVIRONMENT VARIABLES =================
+    const SUPABASE_URL = "https://dwtroohkdmpmzfbrvzzn.supabase.co"; // Your exact project URL
+    const SUPABASE_ANON_KEY = "sb_publishable_O6L-x2Vd9RgDrxDYd7papA_D8WIRXNS";
+
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let activeSessionUser = null;
+    let activePartnerId = null;
+    let isSignUpMode = false;
+
+    // Element Target DOM Node References
+    const authView = document.getElementById('auth-view');
+    const appView = document.getElementById('app-view');
+    const authForm = document.getElementById('auth-form');
+    const authEmail = document.getElementById('auth-email');
+    const authPassword = document.getElementById('auth-password');
+    const authTitle = document.getElementById('auth-title');
+    const authSubmitBtn = document.getElementById('auth-submit-btn');
+    const authSwitchBtn = document.getElementById('auth-switch-btn');
+    const authSwitchText = document.getElementById('auth-switch-text');
+    
+    const sidebarContainer = document.getElementById('sidebar-container');
+    const chatContainer = document.getElementById('chat-container');
+    const mobileBackBtn = document.getElementById('mobile-back-btn');
+    const currentUserDisplay = document.getElementById('current-user-display');
+    const userAvatar = document.getElementById('user-avatar');
+    const usersList = document.getElementById('users-list');
+    const activeChatPartner = document.getElementById('active-chat-partner');
+    const chatBox = document.getElementById('chat-box');
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const searchInput = document.getElementById('search-input');
+
+    // Cache to prevent structural search collisions
+    let fullyLoadedProfiles = [];
+
+    // ================= AUTH MANAGEMENT IMPLEMENTATIONS =================
+    authSwitchBtn.addEventListener('click', () => {
+      isSignUpMode = !isSignUpMode;
+      authTitle.textContent = isSignUpMode ? "CREATE EPHY ACCOUNT" : "EPHY CHAT PRO";
+      authSubmitBtn.textContent = isSignUpMode ? "Sign Up" : "Log In";
+      authSwitchText.textContent = isSignUpMode ? "Already verified?" : "New to the platform?";
+      authSwitchBtn.textContent = isSignUpMode ? "Log In" : "Create Account";
+    });
+
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = authEmail.value.trim();
+      const password = authPassword.value;
+
+      if (isSignUpMode) {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) return alert("Registration Reject: " + error.message);
+        
+        const generatedHandle = email.split('@')[0].toLowerCase();
+        if (data.user) {
+          await supabase.from('profiles').insert({ id: data.user.id, username: generatedHandle });
+        }
+        alert("Registration success profile provisioned! Accessing main stream...");
+        verifyLiveSession();
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) return alert("Access Denied: " + error.message);
+        verifyLiveSession();
+      }
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      appView.classList.add('hidden');
+      authView.classList.remove('hidden');
+      activeSessionUser = null;
+      activePartnerId = null;
+    });
+
+    async function verifyLiveSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && session.user) {
+        activeSessionUser = session.user;
+        authView.classList.add('hidden');
+        appView.classList.remove('hidden');
+        
+        const { data } = await supabase.from('profiles').select('username').eq('id', activeSessionUser.id).single();
+        const outputHandle = data ? data.username : activeSessionUser.email.split('@')[0];
+        
+        currentUserDisplay.textContent = outputHandle;
+        userAvatar.textContent = outputHandle[0].toUpperCase();
+
+        syncRegisteredProfiles();
+        bindRealtimeMessagePipeline();
+      }
+    }
+
+    // ================= SIDEBAR FEEDS RENDERING =================
+    async function syncRegisteredProfiles() {
+      const { data: records, error } = await supabase.from('profiles').select('*');
+      if (error) return;
+
+      fullyLoadedProfiles = records;
+      drawSidebarElements();
+    }
+
+    function drawSidebarElements() {
+      const queryFilter = searchInput.value.trim().toLowerCase();
+      usersList.innerHTML = '';
+
+      const structuralMatches = fullyLoadedProfiles.filter(p => {
+        if (p.id === activeSessionUser.id) return false;
+        return !queryFilter || p.username.toLowerCase().includes(queryFilter);
+      });
+
+      if (structuralMatches.length === 0) {
+        usersList.innerHTML = `<div class="text-xs text-slate-500 p-4 italic text-center">No profiles found</div>`;
+        return;
+      }
+
+      structuralMatches.forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = `w-full text-left p-3 rounded-xl transition-all flex items-center justify-between hover:bg-slate-800/60 cursor-pointer ${activePartnerId === p.id ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/20 shadow-inner' : 'border border-transparent'}`;
+        btn.innerHTML = `
+          <div class="flex items-center gap-3 overflow-hidden">
+            <div class="w-8 h-8 rounded-lg bg-slate-700 text-slate-200 flex items-center justify-center text-xs font-bold uppercase border border-slate-600/40">${p.username[0]}</div>
+            <span class="font-semibold text-xs truncate text-slate-200">${p.username}</span>
+          </div>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
+        `;
+        btn.onclick = () => openActiveChannel(p);
+        usersList.appendChild(btn);
+      });
+    }
+
+    searchInput.addEventListener('input', drawSidebarElements);
+
+    function openActiveChannel(profile) {
+      activePartnerId = profile.id;
+      activeChatPartner.textContent = `💬 ${profile.username}`;
+      
+      messageInput.removeAttribute('disabled');
+      sendBtn.removeAttribute('disabled');
+      messageInput.placeholder = `Message ${profile.username}...`;
+      
+      fetchMessageLogs();
+      handleResponsiveSlide(true);
+      drawSidebarElements();
+    }
+
+    // ================= MESSAGING ENGINE LOGIC =================
+    async function fetchMessageLogs() {
+      if (!activePartnerId || !activeSessionUser) return;
+      
+      const { data: logs, error } = await supabase
+        .from('private_messages')
+        .select('*')
+        .or(`and(sender_id.eq.${activeSessionUser.id},receiver_id.eq.${activePartnerId}),and(sender_id.eq.${activePartnerId},receiver_id.eq.${activeSessionUser.id})`)
+        .order('created_at', { ascending: true });
+
+      if (error) return;
+
+      chatBox.innerHTML = '';
+      if (logs.length > 0) {
+        logs.forEach(msg => {
+          const checkSelf = msg.sender_id === activeSessionUser.id;
+          const row = document.createElement('div');
+          row.className = `w-full flex flex-col ${checkSelf ? 'items-end' : 'items-start'}`;
+          row.innerHTML = `
+            <div class="max-w-[80%] md:max-w-[65%] px-4 py-2.5 my-0.5 rounded-2xl text-xs leading-relaxed font-normal shadow-sm ${checkSelf ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700/60'}">
+              ${msg.content}
+            </div>
+          `;
+          chatBox.appendChild(row);
+        });
+      } else {
+        chatBox.innerHTML = `<div class="text-center text-slate-500 mt-20 text-xs tracking-wide">Secure channel ready. Wire an insertion block payload below.</div>`;
+      }
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payloadText = messageInput.value.trim();
+      if (!payloadText || !activePartnerId) return;
+
+      messageInput.value = '';
+
+      const { error } = await supabase.from('private_messages').insert({
+        sender_id: activeSessionUser.id,
+        receiver_id: activePartnerId,
+        content: payloadText
+      });
+
+      if (error) alert("Pipeline dropped payload: " + error.message);
+      fetchMessageLogs();
+    });
+
+    // Realtime Database Event Binding Pipeline
+    function bindRealtimeMessagePipeline() {
+      supabase
+        .channel('public-messages-instance')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'private_messages' }, () => {
+          fetchMessageLogs();
+        })
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
+          syncRegisteredProfiles();
+        })
+        .subscribe();
+    }
+
+    // ================= INTERFACE RESPONSIVENESS =================
+    function handleResponsiveSlide(showWorkspace) {
+      if (window.innerWidth < 768) {
+        if (showWorkspace) {
+          sidebarContainer.classList.add('-translate-x-full');
+          chatContainer.classList.remove('translate-x-full');
+        } else {
+          sidebarContainer.classList.remove('-translate-x-full');
+          chatContainer.classList.add('translate-x-full');
+        }
+      }
+    }
+
+    mobileBackBtn.addEventListener('click', () => handleResponsiveSlide(false));
+
+    // Initial system boot verify check
+    verifyLiveSession();
+  </script>
+</body>
+</html>
