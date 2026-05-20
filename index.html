@@ -40,9 +40,8 @@
       
       <div class="p-4 border-b border-slate-800 flex items-center justify-between gap-3 bg-slate-900/50">
         <div class="flex items-center gap-3 overflow-hidden">
-          <div id="user-avatar" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-bold text-white shadow-md border border-indigo-400/10 uppercase">
-            ?
-          </div>
+          <img id="user-avatar-img" src="" class="w-10 h-10 rounded-xl bg-slate-800 object-cover border border-slate-700 hidden">
+          <div id="user-avatar-placeholder" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-bold text-white shadow-md border border-indigo-400/10 uppercase">?</div>
           <div class="truncate">
             <h3 id="current-user-display" class="font-bold text-slate-200 text-sm truncate">...</h3>
             <p class="text-[10px] text-emerald-400 flex items-center gap-1 font-medium">● Online</p>
@@ -56,9 +55,10 @@
 
       <div class="p-3 border-b border-slate-800/60 space-y-2">
         <input id="search-input" type="text" placeholder="Search entries..." class="w-full text-xs bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 focus:outline-none focus:border-indigo-500 text-white placeholder-slate-600">
-        <button id="group-trigger-btn" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-medium py-2 px-3 rounded-lg text-xs transition cursor-pointer flex items-center justify-center gap-1.5 border border-slate-700/30">
-          ➕ Create New Channel Group
-        </button>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="group-trigger-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-medium py-2 px-2 rounded-lg text-[11px] transition cursor-pointer flex items-center justify-center gap-1 border border-slate-700/30">👥 New Group</button>
+          <button id="story-trigger-btn" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 hover:text-indigo-300 font-medium py-2 px-2 rounded-lg text-[11px] transition cursor-pointer flex items-center justify-center gap-1 border border-indigo-500/20">📸 Add Story</button>
+        </div>
       </div>
 
       <div class="flex-1 overflow-y-auto p-2 space-y-4">
@@ -80,12 +80,15 @@
 
     <main id="chat-container" class="flex-1 flex flex-col justify-between bg-slate-950 h-full w-full absolute md:relative z-10 transition-transform duration-300 translate-x-full md:translate-x-0">
       
-      <header class="bg-slate-900/80 backdrop-blur-md p-4 border-b border-slate-800 flex items-center gap-3 shadow-md">
-        <button id="mobile-back-btn" class="md:hidden text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition font-medium">
-          ⬅ Channels
-        </button>
-        <h2 id="active-chat-partner" class="font-bold text-sm md:text-base text-slate-200 truncate">Select an open node to mount log streams</h2>
+      <header class="bg-slate-900/80 backdrop-blur-md p-4 border-b border-slate-800 flex items-center justify-between gap-3 shadow-md z-10">
+        <div class="flex items-center gap-3 overflow-hidden">
+          <button id="mobile-back-btn" class="md:hidden text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg transition font-medium">⬅ Channels</button>
+          <h2 id="active-chat-partner" class="font-bold text-sm md:text-base text-slate-200 truncate">Select an open node to mount log streams</h2>
+        </div>
       </header>
+
+      <div class="bg-slate-900/40 border-b border-slate-900 px-4 py-3 flex gap-3 overflow-x-auto items-center scrollbar-none" id="stories-tray">
+        </div>
 
       <div id="chat-box" class="flex-1 p-4 md:p-6 overflow-y-auto space-y-3 bg-slate-950">
         <div class="text-center text-slate-600 mt-20 text-sm max-w-sm mx-auto font-light leading-relaxed">
@@ -109,22 +112,27 @@
         <button id="settings-close-btn" class="text-slate-400 hover:text-white font-bold text-sm bg-slate-800 h-7 w-7 rounded-lg transition cursor-pointer flex items-center justify-center">✕</button>
       </div>
       <div class="p-5 space-y-4">
+        <div class="flex flex-col items-center gap-2 mb-2">
+          <div class="relative group">
+            <img id="settings-avatar-preview" src="" class="w-16 h-16 rounded-2xl object-cover bg-slate-950 border border-slate-800 hidden">
+            <div id="settings-avatar-placeholder" class="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center font-bold text-white text-xl uppercase">?</div>
+          </div>
+          <p class="text-[10px] text-slate-500">Provide an image URL link below to update avatar asset</p>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 mb-1.5 tracking-wider uppercase">Profile Avatar URL Link</label>
+          <input id="settings-avatar-url" type="url" placeholder="https://domain.com/image.jpg" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
         <div>
           <label class="block text-[10px] font-bold text-slate-400 mb-1.5 tracking-wider uppercase">Update System Username</label>
           <input id="settings-username" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
         </div>
         <div class="pt-2 border-t border-slate-800/60">
           <h4 class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mb-2">Privacy Matrix Toggles</h4>
-          <div class="space-y-2">
-            <label class="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800/60 cursor-pointer">
-              <span class="text-xs text-slate-300 font-medium">Private Account Mode</span>
-              <input id="settings-private-toggle" type="checkbox" class="accent-indigo-500 h-4 w-4">
-            </label>
-            <label class="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800/60 cursor-pointer">
-              <span class="text-xs text-slate-300 font-medium">Hide Telemetry Activity Status</span>
-              <input type="checkbox" class="accent-indigo-500 h-4 w-4" checked>
-            </label>
-          </div>
+          <label class="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800/60 cursor-pointer">
+            <span class="text-xs text-slate-300 font-medium">Private Account Mode</span>
+            <input id="settings-private-toggle" type="checkbox" class="accent-indigo-500 h-4 w-4">
+          </label>
         </div>
         <button id="settings-save-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition text-xs cursor-pointer shadow-md mt-2">Save Profile Rules</button>
       </div>
@@ -144,20 +152,49 @@
         </div>
         <div>
           <label class="block text-[10px] font-bold text-slate-400 mb-1.5 tracking-wider uppercase">Select Teammates to Provision</label>
-          <div id="group-members-selection" class="max-h-40 overflow-y-auto bg-slate-950 border border-slate-800 rounded-xl p-2 space-y-1">
-            </div>
+          <div id="group-members-selection" class="max-h-40 overflow-y-auto bg-slate-950 border border-slate-800 rounded-xl p-2 space-y-1"></div>
         </div>
         <button id="group-create-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition text-xs cursor-pointer shadow-md mt-2">Instantiate Group Stream</button>
       </div>
     </div>
   </div>
 
+  <div id="story-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex justify-center items-center z-50 p-4 transition-all">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
+        <h3 class="font-bold text-sm text-slate-200 tracking-wide uppercase">Deploy Telemetry Story Status</h3>
+        <button id="story-close-btn" class="text-slate-400 hover:text-white font-bold text-sm bg-slate-800 h-7 w-7 rounded-lg transition cursor-pointer flex items-center justify-center">✕</button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 mb-1.5 tracking-wider uppercase">Story Media URL or Text Payload</label>
+          <textarea id="story-content-input" rows="3" placeholder="Type status content update or paste a graphics link block here..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        </div>
+        <button id="story-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl transition text-xs cursor-pointer shadow-md">Deploy Status Stream</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="story-viewer-modal" class="fixed inset-0 bg-slate-950 hidden flex flex-col justify-center items-center z-50 p-4 transition-all">
+    <button id="viewer-close-btn" class="absolute top-6 right-6 text-slate-400 hover:text-white text-lg font-bold bg-slate-900 h-10 w-10 rounded-xl border border-slate-800 flex items-center justify-center cursor-pointer">✕</button>
+    <div class="w-full max-w-md flex flex-col items-center">
+      <div class="flex items-center gap-3 self-start mb-4 px-2">
+        <div id="viewer-user-avatar" class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-xs font-bold text-white uppercase">?</div>
+        <div>
+          <h4 id="viewer-username" class="font-bold text-xs text-slate-200">User Handle</h4>
+          <p id="viewer-time" class="text-[9px] text-slate-500 font-medium uppercase tracking-wider">Timestamp</p>
+        </div>
+      </div>
+      <div class="w-full aspect-[9/16] bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden flex items-center justify-center p-6 shadow-2xl relative">
+        <div id="viewer-text-content" class="text-center text-base md:text-lg font-medium text-slate-100 break-words max-w-full"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // Configuration Registry Settings
       const SUPABASE_URL = "https://dwtroohkdmpmzfbrvzzn.supabase.co"; //
       const SUPABASE_ANON_KEY = "sb_publishable_O6L-x2Vd9RgDrxDYd7papA_D8WIRXNS";
-
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       let activeSessionUser = null;
@@ -165,7 +202,7 @@
       let activeGroupId = null;
       let isSignUpMode = false;
 
-      // Element Registry Cache Mapping
+      // DOM Target Selectors
       const authView = document.getElementById('auth-view');
       const appView = document.getElementById('app-view');
       const authForm = document.getElementById('auth-form');
@@ -180,7 +217,8 @@
       const chatContainer = document.getElementById('chat-container');
       const mobileBackBtn = document.getElementById('mobile-back-btn');
       const currentUserDisplay = document.getElementById('current-user-display');
-      const userAvatar = document.getElementById('user-avatar');
+      const userAvatarImg = document.getElementById('user-avatar-img');
+      const userAvatarPlaceholder = document.getElementById('user-avatar-placeholder');
       const usersList = document.getElementById('users-list');
       const groupsList = document.getElementById('groups-list');
       const activeChatPartner = document.getElementById('active-chat-partner');
@@ -190,12 +228,16 @@
       const sendBtn = document.getElementById('send-btn');
       const logoutBtn = document.getElementById('logout-btn');
       const searchInput = document.getElementById('search-input');
+      const storiesTray = document.getElementById('stories-tray');
 
-      // Modals Nodes
+      // Modals Cache Nodes
       const settingsModal = document.getElementById('settings-modal');
       const settingsTriggerBtn = document.getElementById('settings-trigger-btn');
       const settingsCloseBtn = document.getElementById('settings-close-btn');
       const settingsUsername = document.getElementById('settings-username');
+      const settingsAvatarUrl = document.getElementById('settings-avatar-url');
+      const settingsAvatarPreview = document.getElementById('settings-avatar-preview');
+      const settingsAvatarPlaceholder = document.getElementById('settings-avatar-placeholder');
       const settingsPrivateToggle = document.getElementById('settings-private-toggle');
       const settingsSaveBtn = document.getElementById('settings-save-btn');
 
@@ -206,10 +248,24 @@
       const groupMembersSelection = document.getElementById('group-members-selection');
       const groupCreateSubmitBtn = document.getElementById('group-create-submit-btn');
 
+      const storyModal = document.getElementById('story-modal');
+      const storyTriggerBtn = document.getElementById('story-trigger-btn');
+      const storyCloseBtn = document.getElementById('story-close-btn');
+      const storyContentInput = document.getElementById('story-content-input');
+      const storySubmitBtn = document.getElementById('story-submit-btn');
+
+      const storyViewerModal = document.getElementById('story-viewer-modal');
+      const viewerCloseBtn = document.getElementById('viewer-close-btn');
+      const viewerUserAvatar = document.getElementById('viewer-user-avatar');
+      const viewerUsername = document.getElementById('viewer-username');
+      const viewerTime = document.getElementById('viewer-time');
+      const viewerTextContent = document.getElementById('viewer-text-content');
+
       let fullyLoadedProfiles = [];
       let fullyLoadedGroups = [];
+      let fullyLoadedStories = [];
 
-      // ================= VIEW SWITCHER ACTIONS =================
+      // ================= AUTH SWITCH PATHS =================
       authSwitchBtn.addEventListener('click', (e) => {
         e.preventDefault();
         isSignUpMode = !isSignUpMode;
@@ -219,7 +275,6 @@
         authSwitchBtn.textContent = isSignUpMode ? "Log In" : "Create Account";
       });
 
-      // ================= AUTH DATA CONNECTIONS =================
       authForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = authEmail.value.trim();
@@ -231,7 +286,7 @@
           
           const generatedHandle = email.split('@')[0].toLowerCase();
           if (data.user) {
-            await supabase.from('profiles').insert({ id: data.user.id, username: generatedHandle, private_mode: false });
+            await supabase.from('profiles').insert({ id: data.user.id, username: generatedHandle, private_mode: false, avatar_url: "" });
           }
           alert("Profile allocated to network matrix cluster!");
           verifyLiveSession();
@@ -262,8 +317,21 @@
           const currentUsername = data ? data.username : activeSessionUser.email.split('@')[0];
           
           currentUserDisplay.textContent = currentUsername;
-          userAvatar.textContent = currentUsername[0].toUpperCase();
           settingsUsername.value = currentUsername;
+          
+          if(data && data.avatar_url) {
+            userAvatarImg.src = data.avatar_url;
+            userAvatarImg.classList.remove('hidden');
+            userAvatarPlaceholder.classList.add('hidden');
+            settingsAvatarPreview.src = data.avatar_url;
+            settingsAvatarPreview.classList.remove('hidden');
+            settingsAvatarPlaceholder.classList.add('hidden');
+            settingsAvatarUrl.value = data.avatar_url;
+          } else {
+            userAvatarPlaceholder.textContent = currentUsername[0].toUpperCase();
+            settingsAvatarPlaceholder.textContent = currentUsername[0].toUpperCase();
+          }
+          
           if(data) settingsPrivateToggle.checked = data.private_mode || false;
 
           syncFeedsPipeline();
@@ -271,28 +339,29 @@
         }
       }
 
-      // ================= DATA FETCHING ENGINE =================
+      // ================= DATA TRANSCEIVER AGGREGATION =================
       async function syncFeedsPipeline() {
-        // Fetch User Profiles
         const { data: userRecords } = await supabase.from('profiles').select('*');
         fullyLoadedProfiles = userRecords || [];
 
-        // Fetch Group Profiles
         const { data: groupRecords } = await supabase.from('chat_groups').select('*');
         fullyLoadedGroups = groupRecords || [];
 
+        const { data: storyRecords } = await supabase.from('stories').select('*').order('created_at', { ascending: false });
+        fullyLoadedStories = storyRecords || [];
+
         drawSidebarElements();
         drawGroupSelectionList();
+        drawStoriesTray();
       }
 
       function drawSidebarElements() {
         const filter = searchInput.value.trim().toLowerCase();
         
-        // 1. Compile User List
         usersList.innerHTML = '';
         const filteredUsers = fullyLoadedProfiles.filter(p => {
           if (p.id === activeSessionUser.id) return false;
-          if (p.private_mode && activePartnerId !== p.id) return false; // Enforce explicit privacy mode context masking
+          if (p.private_mode && activePartnerId !== p.id) return false;
           return !filter || p.username.toLowerCase().includes(filter);
         });
 
@@ -304,7 +373,7 @@
             btn.className = `w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between hover:bg-slate-800/40 cursor-pointer ${activePartnerId === p.id && !activeGroupId ? 'bg-indigo-600/10 text-indigo-400 font-bold border border-indigo-500/10' : 'border border-transparent'}`;
             btn.innerHTML = `
               <div class="flex items-center gap-2.5 overflow-hidden">
-                <div class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-[11px] font-bold uppercase border border-slate-700/30">${p.username[0]}</div>
+                ${p.avatar_url ? `<img src="${p.avatar_url}" class="w-7 h-7 rounded-lg object-cover border border-slate-800">` : `<div class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-[11px] font-bold uppercase border border-slate-700/30">${p.username[0]}</div>`}
                 <span class="font-medium text-xs truncate text-slate-300">${p.username}</span>
               </div>
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -314,7 +383,6 @@
           });
         }
 
-        // 2. Compile Cluster Groups List
         groupsList.innerHTML = '';
         const filteredGroups = fullyLoadedGroups.filter(g => !filter || g.name.toLowerCase().includes(filter));
 
@@ -362,25 +430,26 @@
         drawSidebarElements();
       }
 
-      // ================= PREFERENCES & SETTINGS ACTIONS =================
+      // ================= PROFILE PREFERENCES ENGINE =================
       settingsTriggerBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
       settingsCloseBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
       
       settingsSaveBtn.addEventListener('click', async () => {
         const updatedHandle = settingsUsername.value.trim().toLowerCase();
+        const updatedAvatar = settingsAvatarUrl.value.trim();
         const privateFlag = settingsPrivateToggle.checked;
 
         if(!updatedHandle) return alert("Handle cannot execute blank");
 
-        const { error } = await supabase.from('profiles').update({ username: updatedHandle, private_mode: privateFlag }).eq('id', activeSessionUser.id);
-        if(error) return alert("Matrix update error: " + error.message);
+        const { error } = await supabase.from('profiles').update({ username: updatedHandle, private_mode: privateFlag, avatar_url: updatedAvatar }).eq('id', activeSessionUser.id);
+        if(error) return alert("Update error: " + error.message);
         
         alert("System profile specifications stored successfully.");
         settingsModal.classList.add('hidden');
         verifyLiveSession();
       });
 
-      // ================= GROUP PROVISIONING ACTIONS =================
+      // ================= MATRIX CLUSTER GROUP MANAGEMENT =================
       groupTriggerBtn.addEventListener('click', () => groupModal.classList.remove('hidden'));
       groupCloseBtn.addEventListener('click', () => groupModal.classList.add('hidden'));
 
@@ -402,16 +471,79 @@
         const targetTitle = groupNameInput.value.trim();
         if(!targetTitle) return alert("Enter structural group name");
 
-        const selectedNodes = Array.from(groupMembersSelection.querySelectorAll('input[type="checkbox"]:checked')).map(el => el.value);
-        selectedNodes.push(activeSessionUser.id); // Secure host logic entry
-
-        const { data, error } = await supabase.from('chat_groups').insert({ name: targetTitle, created_by: activeSessionUser.id }).select().single();
+        const { error } = await supabase.from('chat_groups').insert({ name: targetTitle, created_by: activeSessionUser.id });
         if(error) return alert("Group initialization dropped: " + error.message);
 
         groupNameInput.value = '';
         groupModal.classList.add('hidden');
         syncFeedsPipeline();
       });
+
+      // ================= SYSTEMS STORIES MATRIX RENDERS =================
+      storyTriggerBtn.addEventListener('click', () => storyModal.classList.remove('hidden'));
+      storyCloseBtn.addEventListener('click', () => storyModal.classList.add('hidden'));
+
+      storySubmitBtn.addEventListener('click', async () => {
+        const content = storyContentInput.value.trim();
+        if(!content) return alert("Story content space is blank.");
+
+        const { error } = await supabase.from('stories').insert({ user_id: activeSessionUser.id, content_payload: content });
+        if(error) return alert("Story drop error: " + error.message);
+
+        storyContentInput.value = '';
+        storyModal.classList.add('hidden');
+        syncFeedsPipeline();
+      });
+
+      function drawStoriesTray() {
+        storiesTray.innerHTML = '';
+        
+        // Add Self Insertion Deployment Node
+        const selfProfile = fullyLoadedProfiles.find(p => p.id === activeSessionUser.id);
+        const selfNode = document.createElement('div');
+        selfNode.className = "flex flex-col items-center flex-shrink-0 cursor-pointer";
+        selfNode.innerHTML = `
+          <div class="w-12 h-12 rounded-full p-[2px] bg-slate-800 border border-dashed border-slate-700 flex items-center justify-center">
+            ${selfProfile && selfProfile.avatar_url ? `<img src="${selfProfile.avatar_url}" class="w-full h-full rounded-full object-cover">` : `<div class="w-full h-full rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center">+</div>`}
+          </div>
+          <span class="text-[10px] text-slate-500 font-medium mt-1">My Status</span>
+        `;
+        selfNode.onclick = () => storyModal.classList.remove('hidden');
+        storiesTray.appendChild(selfNode);
+
+        // Render Active Streams Matching Users
+        fullyLoadedStories.forEach(story => {
+          const author = fullyLoadedProfiles.find(p => p.id === story.user_id);
+          if(!author) return;
+
+          const storyNode = document.createElement('div');
+          storyNode.className = "flex flex-col items-center flex-shrink-0 cursor-pointer";
+          storyNode.innerHTML = `
+            <div class="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
+              ${author.avatar_url ? `<img src="${author.avatar_url}" class="w-full h-full rounded-full object-cover bg-slate-950">` : `<div class="w-full h-full rounded-full bg-slate-900 text-indigo-400 text-xs font-bold flex items-center justify-center uppercase">${author.username[0]}</div>`}
+            </div>
+            <span class="text-[10px] text-slate-300 max-w-[55px] truncate font-medium mt-1">${author.username}</span>
+          `;
+          storyNode.onclick = () => launchStoryViewer(story, author);
+          storiesTray.appendChild(storyNode);
+        });
+      }
+
+      function launchStoryViewer(story, author) {
+        viewerUsername.textContent = author.username;
+        viewerTime.textContent = new Date(story.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        viewerTextContent.textContent = story.content_payload;
+        
+        if(author.avatar_url) {
+          viewerUserAvatar.innerHTML = `<img src="${author.avatar_url}" class="w-full h-full rounded-lg object-cover">`;
+        } else {
+          viewerUserAvatar.textContent = author.username[0].toUpperCase();
+        }
+        
+        storyViewerModal.classList.remove('hidden');
+      }
+
+      viewerCloseBtn.addEventListener('click', () => storyViewerModal.classList.add('hidden'));
 
       // ================= MESSAGING TRANSMISSION ENGINE =================
       async function fetchMessageLogs() {
@@ -420,11 +552,9 @@
 
         let logs = [];
         if (activeGroupId) {
-          // Pull Group Broadcaster Entries
           const { data } = await supabase.from('private_messages').select('*').eq('group_id', activeGroupId).order('created_at', { ascending: true });
           logs = data || [];
         } else if (activePartnerId) {
-          // Pull Peer-to-Peer Pipeline Entries
           const { data } = await supabase.from('private_messages')
             .select('*')
             .or(`and(sender_id.eq.${activeSessionUser.id},receiver_id.eq.${activePartnerId}),and(sender_id.eq.${activePartnerId},receiver_id.eq.${activeSessionUser.id})`)
@@ -479,10 +609,10 @@
           .on('postgres_changes', { event: '*', schema: 'public', table: 'private_messages' }, () => { fetchMessageLogs(); })
           .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => { syncFeedsPipeline(); })
           .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_groups' }, () => { syncFeedsPipeline(); })
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'stories' }, () => { syncFeedsPipeline(); })
           .subscribe();
       }
 
-      // ================= VIEWPORT SCALE RESPONSIVENESS =================
       function handleResponsiveSlide(showWorkspace) {
         if (window.innerWidth < 768) {
           if (showWorkspace) {
@@ -496,8 +626,6 @@
       }
 
       mobileBackBtn.addEventListener('click', () => handleResponsiveSlide(false));
-
-      // Assert Engine Boot
       verifyLiveSession();
     });
   </script>
