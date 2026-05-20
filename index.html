@@ -26,7 +26,7 @@
     
     <p class="text-center text-xs text-slate-400 mt-5">
       <span id="auth-switch-text">New to the platform?</span> 
-      <button id="auth-switch-btn" onclick="toggleAuthMode(event)" class="text-indigo-400 font-bold hover:underline cursor-pointer bg-transparent border-none ml-1">Create Account</button>
+      <button id="auth-switch-btn" class="text-indigo-400 font-bold hover:underline cursor-pointer bg-transparent border-none ml-1">Create Account</button>
     </p>
   </div>
 
@@ -85,10 +85,11 @@
 
   <script>
     // ================= CLIENT CORE INSTANCE ENVIRONMENT VARIABLES =================
-    const SUPABASE_URL = "https://dwtroohkdmpmzfbrvzzn.supabase.co"; // Your exact project URL
+    const SUPABASE_URL = "https://dwtroohkdmpmzfbrvzzn.supabase.co"; //
     const SUPABASE_ANON_KEY = "sb_publishable_O6L-x2Vd9RgDrxDYd7papA_D8WIRXNS";
 
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // FIXED: Accessing via explicit global library namespace to avoid naming compilation collision crashes
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let activeSessionUser = null;
     let activePartnerId = null;
@@ -121,16 +122,16 @@
 
     let fullyLoadedProfiles = [];
 
-    // ================= GLOBAL FUNCTION AUTH SWITCHING =================
-    window.toggleAuthMode = function(e) {
-      if (e) e.preventDefault();
+    // ================= AUTH MANAGEMENT IMPLEMENTATIONS =================
+    authSwitchBtn.addEventListener('click', (e) => {
+      e.preventDefault(); 
       isSignUpMode = !isSignUpMode;
       
       authTitle.textContent = isSignUpMode ? "CREATE EPHY ACCOUNT" : "EPHY CHAT PRO";
       authSubmitBtn.textContent = isSignUpMode ? "Sign Up" : "Log In";
       authSwitchText.textContent = isSignUpMode ? "Already verified?" : "New to the platform?";
       authSwitchBtn.textContent = isSignUpMode ? "Log In" : "Create Account";
-    }
+    });
 
     authForm.addEventListener('submit', async (e) => {
       e.preventDefault();
